@@ -53,3 +53,41 @@
 	}
 }
 
+/* =========================================================
+	Content offset fixes to avoid sliding under sidebar (LTR/RTL, collapsed)
+   ========================================================= */
+:root {
+	--sidebar-w: 260px;
+	--sidebar-w-min: 84px;
+}
+
+@media (min-width: 992px) {
+	/* Logical property first (modern) */
+	body .content-with-sidebar {
+		margin-inline-start: var(--sidebar-w) !important;
+	}
+	body.sidebar-collapsed .content-with-sidebar {
+		margin-inline-start: var(--sidebar-w-min) !important;
+	}
+
+	/* Explicit fallbacks for engines without margin-inline support or to out-specificity later rules */
+	html[dir="ltr"] body .content-with-sidebar {
+		margin-left: var(--sidebar-w) !important;
+	}
+	html[dir="ltr"] body.sidebar-collapsed .content-with-sidebar {
+		margin-left: var(--sidebar-w-min) !important;
+	}
+	html[dir="rtl"] body .content-with-sidebar {
+		margin-right: var(--sidebar-w) !important;
+	}
+	html[dir="rtl"] body.sidebar-collapsed .content-with-sidebar {
+		margin-right: var(--sidebar-w-min) !important;
+	}
+}
+
+@media (max-width: 991.98px) {
+	body .content-with-sidebar {
+		margin: 0 !important;
+	}
+}
+
