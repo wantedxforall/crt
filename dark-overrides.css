@@ -1,0 +1,93 @@
+/* =========================================================
+	Dark Mode Fixes (Selector logic, variables, fallbacks)
+	- Fix 1: Correct selector logic to apply when html.dark OR body.dark-version
+	- Fix 2: Define missing --elev-1 and standardize dash-card border
+	- Fix 3: Provide fallbacks for color-mix() usages
+   ========================================================= */
+
+/* Fix 1 + Fix 2: scope and variables */
+:is(html.dark body.user-panel, body.user-panel.dark-version) {
+	/* Ensure commonly used tokens exist in dark scope */
+	--border-1: rgba(255, 255, 255, .10);
+	--elev-1: 0 6px 18px rgba(0, 0, 0, .35);
+}
+
+/* Fix 2: unify dash-card border + elevation to tokens */
+:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card {
+	border: 1px solid var(--border-1) !important;
+	box-shadow: var(--elev-1) !important;
+}
+
+/* Fix 3: color-mix() fallbacks for icon bubbles */
+:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .icon,
+:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .card-icon,
+:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .thumb {
+	/* Fallback: flat color or simple gradient */
+	background: linear-gradient(135deg, var(--primary), var(--primary)) !important;
+}
+
+@supports (background: color-mix(in oklab, red, white)) {
+	:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .icon,
+	:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .card-icon,
+	:is(html.dark body.user-panel, body.user-panel.dark-version) .dash-card .thumb {
+		background: linear-gradient(
+			135deg,
+			color-mix(in oklab, var(--primary), white 12%),
+			color-mix(in oklab, var(--primary), black 10%)
+		) !important;
+		border: 1px solid color-mix(in oklab, var(--primary), black 14%) !important;
+		box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10) !important;
+	}
+}
+
+/* Fix 3: color-mix() fallback for active sidebar item state */
+:is(html.dark body.user-panel, body.user-panel.dark-version) .sidebar__menu .sidebar-menu-item.active>a {
+	/* Fallback approximation of color-mix(in oklab, var(--primary), transparent 82%) */
+	background: rgba(255, 213, 79, .18) !important;
+	box-shadow: 0 0 0 2px rgba(255, 213, 79, .25) inset !important;
+}
+
+@supports (background: color-mix(in oklab, red, transparent)) {
+	:is(html.dark body.user-panel, body.user-panel.dark-version) .sidebar__menu .sidebar-menu-item.active>a {
+		background: color-mix(in oklab, var(--primary), transparent 82%) !important;
+	}
+}
+
+/* =========================================================
+	Content offset fixes to avoid sliding under sidebar (LTR/RTL, collapsed)
+   ========================================================= */
+:root {
+	--sidebar-w: 260px;
+	--sidebar-w-min: 84px;
+}
+
+@media (min-width: 992px) {
+	/* Logical property first (modern) */
+	body .content-with-sidebar {
+		margin-inline-start: var(--sidebar-w) !important;
+	}
+	body.sidebar-collapsed .content-with-sidebar {
+		margin-inline-start: var(--sidebar-w-min) !important;
+	}
+
+	/* Explicit fallbacks for engines without margin-inline support or to out-specificity later rules */
+	html[dir="ltr"] body .content-with-sidebar {
+		margin-left: var(--sidebar-w) !important;
+	}
+	html[dir="ltr"] body.sidebar-collapsed .content-with-sidebar {
+		margin-left: var(--sidebar-w-min) !important;
+	}
+	html[dir="rtl"] body .content-with-sidebar {
+		margin-right: var(--sidebar-w) !important;
+	}
+	html[dir="rtl"] body.sidebar-collapsed .content-with-sidebar {
+		margin-right: var(--sidebar-w-min) !important;
+	}
+}
+
+@media (max-width: 991.98px) {
+	body .content-with-sidebar {
+		margin: 0 !important;
+	}
+}
+
